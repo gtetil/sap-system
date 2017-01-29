@@ -1,0 +1,8 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP TE_RELAY_(ORWH-SH-112D)
+D TE, RELAY, SPDT, 12VDC COIL, 10A, ORWH-SH-112D,N000
+F http://www.digikey.com/product-detail/en/te-connectivity-potter-brumfield-relays/ORWH-SH-112D,N000/PB1321-ND/3318145
+$ENDCMP
+#
+#End Doc Library

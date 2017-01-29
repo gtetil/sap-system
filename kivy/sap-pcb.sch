@@ -1,0 +1,311 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:arduino
+LIBS:sap-pcb-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L CONN_01X04 PWR_IN_1
+U 1 1 57AA7897
+P 1400 1650
+F 0 "PWR_IN_1" H 1400 1900 50  0000 C CNN
+F 1 "CONN_01X04" H 1400 1400 50  0000 C CNN
+F 2 "USBdio-PCB:PHX_HDR_4_POS_(1933202)" H 1400 1650 50  0001 C CNN
+F 3 "" H 1400 1650 50  0000 C CNN
+	1    1400 1650
+	-1   0    0    -1  
+$EndComp
+$Comp
+L arduino_mini U1
+U 1 1 57BF6188
+P 5500 2950
+F 0 "U1" H 5700 1500 70  0000 C CNN
+F 1 "Arduino_Nano" H 6000 1400 70  0000 C CNN
+F 2 "USBdio-PCB:ARDUINO_NANO" H 5500 2900 60  0001 C CNN
+F 3 "" H 5500 2950 60  0001 C CNN
+	1    5500 2950
+	1    0    0    -1  
+$EndComp
+Text Notes 1300 1550 2    60   ~ 0
+V_BATT
+Text Notes 1300 1650 2    60   ~ 0
+GND
+Text Notes 1300 1750 2    60   ~ 0
+GND
+Text Notes 1300 1850 2    60   ~ 0
+IGN
+$Comp
+L CONN_01X04 GND_DIST_1
+U 1 1 57BF6965
+P 1400 2450
+F 0 "GND_DIST_1" H 1400 2700 50  0000 C CNN
+F 1 "CONN_01X04" H 1400 2200 50  0000 C CNN
+F 2 "USBdio-PCB:PHX_HDR_4_POS_(1933202)" H 1400 2450 50  0001 C CNN
+F 3 "" H 1400 2450 50  0000 C CNN
+	1    1400 2450
+	-1   0    0    -1  
+$EndComp
+Text Notes 1300 2450 2    60   ~ 0
+GND
+Text Notes 1300 2550 2    60   ~ 0
+GND
+Text Notes 1300 2350 2    60   ~ 0
+GND
+Text Notes 1300 2650 2    60   ~ 0
+GND
+$Comp
+L CONN_01X04 OUTPUTS_2
+U 1 1 57BF6D6A
+P 10550 1050
+F 0 "OUTPUTS_2" H 10550 1300 50  0000 C CNN
+F 1 "CONN_01X04" H 10550 800 50  0000 C CNN
+F 2 "USBdio-PCB:PHX_HDR_4_POS_(1933202)" H 10550 1050 50  0001 C CNN
+F 3 "" H 10550 1050 50  0000 C CNN
+	1    10550 1050
+	1    0    0    1   
+$EndComp
+Text Notes 10650 950  0    60   ~ 0
+7
+Text Notes 10650 1050 0    60   ~ 0
+6
+Text Notes 10650 1150 0    60   ~ 0
+5
+Text Notes 10650 1250 0    60   ~ 0
+4
+$Comp
+L GND #PWR01
+U 1 1 57BF702C
+P 1800 2700
+F 0 "#PWR01" H 1800 2450 50  0001 C CNN
+F 1 "GND" H 1800 2550 50  0000 C CNN
+F 2 "" H 1800 2700 50  0000 C CNN
+F 3 "" H 1800 2700 50  0000 C CNN
+	1    1800 2700
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR02
+U 1 1 57BF7175
+P 5500 4500
+F 0 "#PWR02" H 5500 4250 50  0001 C CNN
+F 1 "GND" H 5500 4350 50  0000 C CNN
+F 2 "" H 5500 4500 50  0000 C CNN
+F 3 "" H 5500 4500 50  0000 C CNN
+	1    5500 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Q_NPN_EBC Q1
+U 1 1 57C3AF76
+P 3550 2250
+F 0 "Q1" H 3850 2300 50  0000 R CNN
+F 1 "Q_NPN_EBC" H 4150 2200 50  0000 R CNN
+F 2 "TO_SOT_Packages_THT:TO-92_Molded_Narrow" H 3750 2350 50  0001 C CNN
+F 3 "" H 3550 2250 50  0000 C CNN
+	1    3550 2250
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R2
+U 1 1 57C3AF7C
+P 3200 2250
+F 0 "R2" V 3280 2250 50  0000 C CNN
+F 1 "10k" V 3200 2250 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 3130 2250 50  0001 C CNN
+F 3 "" H 3200 2250 50  0000 C CNN
+	1    3200 2250
+	0    1    1    0   
+$EndComp
+$Comp
+L R R1
+U 1 1 57C3AF82
+P 3200 2000
+F 0 "R1" V 3280 2000 50  0000 C CNN
+F 1 "10k" V 3200 2000 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 3130 2000 50  0001 C CNN
+F 3 "" H 3200 2000 50  0000 C CNN
+	1    3200 2000
+	0    1    1    0   
+$EndComp
+$Comp
+L TE_RELAY_(ORWH-SH-112D) P7
+U 1 1 57C43234
+P 8850 1000
+F 0 "P7" H 8850 1200 50  0000 C CNN
+F 1 "TE_RELAY_(ORWH-SH-112D)" H 9100 800 50  0000 C CNN
+F 2 "USBdio-PCB:TE_RELAY_(ORWH-SH-112D)" H 8850 -200 50  0001 C CNN
+F 3 "" H 8850 -200 50  0000 C CNN
+	1    8850 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Q_NPN_EBC Q10
+U 1 1 57C435B9
+P 7950 1350
+F 0 "Q10" H 7900 1600 50  0000 R CNN
+F 1 "Q_NPN" H 7900 1500 50  0000 R CNN
+F 2 "TO_SOT_Packages_THT:TO-92_Molded_Narrow" H 8150 1450 50  0001 C CNN
+F 3 "" H 7950 1350 50  0000 C CNN
+	1    7950 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L D D1
+U 1 1 57C436F2
+P 8200 1000
+F 0 "D1" H 8200 900 50  0000 C CNN
+F 1 "D" H 8200 900 50  0001 C CNN
+F 2 "Diodes_ThroughHole:Diode_DO-41_SOD81_Horizontal_RM10" H 8200 1000 50  0001 C CNN
+F 3 "" H 8200 1000 50  0000 C CNN
+	1    8200 1000
+	-1   0    0    1   
+$EndComp
+$Comp
+L R R19
+U 1 1 57C450DB
+P 7600 1350
+F 0 "R19" V 7680 1350 50  0000 C CNN
+F 1 "1k" V 7600 1350 50  0000 C CNN
+F 2 "Resistors_ThroughHole:Resistor_Horizontal_RM10mm" V 7530 1350 50  0001 C CNN
+F 3 "" H 7600 1350 50  0000 C CNN
+	1    7600 1350
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR03
+U 1 1 57C50E60
+P 8050 1800
+F 0 "#PWR03" H 8050 1550 50  0001 C CNN
+F 1 "GND" H 8050 1650 50  0000 C CNN
+F 2 "" H 8050 1800 50  0000 C CNN
+F 3 "" H 8050 1800 50  0000 C CNN
+	1    8050 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1600 1500 5350 1500
+Wire Wire Line
+	5350 750  5350 1800
+Wire Wire Line
+	5500 1800 5500 1700
+Wire Wire Line
+	5500 1700 2850 1700
+Wire Wire Line
+	3350 2000 4800 2000
+Wire Wire Line
+	3650 2000 3650 2050
+Connection ~ 3650 2000
+Wire Wire Line
+	1600 1800 2700 1800
+Wire Wire Line
+	2700 1800 2700 2250
+Wire Wire Line
+	2700 2250 3050 2250
+Wire Wire Line
+	4800 2000 4800 1400
+Wire Wire Line
+	4800 1400 6350 1400
+Wire Wire Line
+	6350 1400 6350 3350
+Wire Wire Line
+	6350 3350 6200 3350
+Wire Wire Line
+	3650 2600 3650 2450
+Connection ~ 2750 2600
+Wire Wire Line
+	1600 2600 3650 2600
+Wire Wire Line
+	1800 2300 1600 2300
+Wire Wire Line
+	1800 1600 1800 2700
+Connection ~ 1800 2600
+Wire Wire Line
+	1600 2500 1800 2500
+Connection ~ 1800 2500
+Wire Wire Line
+	1600 2400 1800 2400
+Connection ~ 1800 2400
+Wire Wire Line
+	1600 1700 1800 1700
+Connection ~ 1800 2300
+Wire Wire Line
+	1600 1600 1800 1600
+Connection ~ 1800 1700
+Connection ~ 2000 1500
+Wire Wire Line
+	3050 2000 2850 2000
+Connection ~ 2850 2000
+Wire Wire Line
+	8050 1000 8050 1150
+Wire Wire Line
+	8350 1000 8450 1000
+Wire Wire Line
+	8450 1100 8050 1100
+Connection ~ 8050 1100
+Wire Wire Line
+	8450 900  8400 900 
+Connection ~ 8400 1000
+Connection ~ 8400 900 
+Connection ~ 5350 1500
+Wire Wire Line
+	8400 1550 8450 1550
+Connection ~ 8400 1550
+Wire Wire Line
+	5350 750  8400 750 
+Wire Wire Line
+	8050 1550 7300 1550
+Wire Wire Line
+	7000 1350 7450 1350
+Wire Wire Line
+	9250 900  10350 900 
+Wire Wire Line
+	9250 1550 9750 1550
+Wire Wire Line
+	9750 1550 9750 1000
+Wire Wire Line
+	9750 1000 10350 1000
+Wire Wire Line
+	9800 1100 10350 1100
+Wire Wire Line
+	9850 1200 10350 1200
+$EndSCHEMATC
