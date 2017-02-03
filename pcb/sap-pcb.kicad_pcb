@@ -3,7 +3,7 @@
   (general
     (links 44)
     (no_connects 0)
-    (area 82.924999 51.735 186.075001 124.075001)
+    (area 81.653572 51.924999 187.346429 125.275)
     (thickness 1.6)
     (drawings 4)
     (tracks 186)
@@ -37,7 +37,7 @@
   )
 
   (setup
-    (last_trace_width 0.6)
+    (last_trace_width 0.25)
     (user_trace_width 0.4)
     (user_trace_width 0.6)
     (trace_clearance 0.2)
@@ -67,7 +67,7 @@
     (aux_axis_origin 0 0)
     (visible_elements 7FFEFFFF)
     (pcbplotparams
-      (layerselection 0x00030_80000001)
+      (layerselection 0x01000_00000000)
       (usegerberextensions false)
       (excludeedgelayer true)
       (linewidth 0.100000)
@@ -88,9 +88,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory ""))
+      (outputdirectory Gerbers/))
   )
 
   (net 0 "")
