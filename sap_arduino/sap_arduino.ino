@@ -61,6 +61,7 @@ int low_level_flag;
 
 //misc
 String data_string;
+int system_status;
 Timer t;
 
 void setup() {
@@ -101,6 +102,17 @@ void loop() {
     eStop();
     low_level_flag = 1;  //used for pop-up on HMI
   }
+
+  //update system status
+  if (run_auto == 1) {
+    system_status = 2; //"Auto_Run"
+  }
+  else if (enabled_mon == 1) {
+    system_status = 1; //"Enabled"
+  }
+  else {
+    system_status = 0; //"Off"
+  }
   
 }
 
@@ -132,6 +144,7 @@ void sendData() {
   addStringData(String(efficiency));
   addStringData(String(low_flow_flag));
   addStringData(String(low_level_flag)); 
+  addStringData(String(system_status));
   Serial.println(data_string);
 }
 

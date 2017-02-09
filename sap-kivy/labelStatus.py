@@ -24,13 +24,13 @@ class LabelStatus(Label):
 
     def on_bstate(self, instance, state):
         if state == '0':
-            self.text = 'Idle'
+            self.text = 'Off'
             self.bcolor = 0.34, 0.34, 0.34, 1
         elif state == '1':
-            self.text = 'Manual'
+            self.text = 'Enabled'
             self.bcolor = 0.19, 0.64, 0.8, 1
         elif state == '2':
-            self.text = 'Test Running'
+            self.text = 'Auto Run'
             self.bcolor = 0.03, 0.55, 0.07, 1
         elif state == '3':
             self.text = 'Alarm'
