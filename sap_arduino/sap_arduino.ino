@@ -1,3 +1,5 @@
+#include <Timer.h>
+
 //flow meter pins (interrupts)
 int sap_flow_pin = 2;
 int water_flow_pin = 3;
@@ -25,8 +27,8 @@ int enabled_mon = 0;
 
 //config
 int level_sw_mode = 0;
-int min_flow = 0;
-int hp_pump_on_delay = 0;
+int min_flow = 3;
+int hp_pump_on_delay = 5;
 
 //sap flow variables
 double sap_flow;
@@ -53,6 +55,13 @@ double efficiency;
 
 //auto mode
 int run_auto;
+int hp_pump_event;
+int low_flow_flag;
+int low_level_flag;
+
+//misc
+String data_string;
+Timer t;
 
 void setup() {
   //serial setup
@@ -64,6 +73,7 @@ void setup() {
   pinMode(water_flow_pin, INPUT);
   attachInterrupt(1, waterFlow, RISING);  
   
+  //setup digital outputs and inputs
   pinMode(hi_press_rly_pin, OUTPUT);   //HI_PRESS_RLY
   pinMode(sump_rly_pin, OUTPUT);   //SUMP_RLY
   pinMode(spare_rly_pin, OUTPUT);   //SPARE_RLY
@@ -71,29 +81,62 @@ void setup() {
   pinMode(estop_mon_pin, INPUT_PULLUP);  //E-STOP_MON
   pinMode(level_sw_pin, INPUT_PULLUP);  //LEVEL_SW
   pinMode(enabled_mon_pin, INPUT_PULLUP);  //ENABLED?
+
+  int main_event = t.every(100, mainEvent);
 }
 
 void loop() {
+  t.update();
   
-  Serial.print(total_gallons);
-  Serial.print(", ");
-  Serial.print(total_flow);
-  Serial.print(", ");
-  Serial.print(digitalRead(4));
-  Serial.print(", ");
-  Serial.println(digitalRead(10));
-  delay(100);
+  if (enabled_mon == 0) {  //if estop circuit opens, turn off all digital outputs
+    eStop();
+  }
 
+  if ((run_auto == 1) && (hi_press_rly == 1) && (total_flow < min_flow)) {  //eStop if flow loss during auto mode
+    eStop();
+    low_flow_flag = 1;  //used for pop-up on HMI
+  }
+
+  if ((run_auto == 1) && (level_sw_mode == 1) && (level_sw == 0)) {  //eStop if low level during auto mode and level sw mode
+    eStop();
+    low_level_flag = 1;  //used for pop-up on HMI
+  }
+  
+}
+
+void mainEvent() {  //this is called by an event to make sure that these are called exactly every 100ms
   calcSapFlow();
   calcWaterFlow();
   calcTotalFlow();
   checkSerial();
   digitalInputs();
+  sendData();
+}
 
-  if (enabled_mon == 0) {  //if estop circuit opens, turn off all digital outputs
-    estop();
-  }
-  
+void sendData() {
+  data_string = "";
+  addStringData(String(hi_press_rly));
+  addStringData(String(sump_rly));
+  addStringData(String(spare_rly));
+  addStringData(String(estop_mon));
+  addStringData(String(level_sw));
+  addStringData(String(enabled_mon));
+  addStringData(String(sap_flow));
+  addStringData(String(water_flow));
+  addStringData(String(total_flow));
+  addStringData(String(sap_count));
+  addStringData(String(water_count));
+  addStringData(String(sap_gallons, 1));
+  addStringData(String(water_gallons, 1));
+  addStringData(String(total_gallons, 1));
+  addStringData(String(efficiency));
+  addStringData(String(low_flow_flag));
+  addStringData(String(low_level_flag)); 
+  Serial.println(data_string);
+}
+
+void addStringData(String data) {
+  data_string += data + ",";
 }
 
 void calcTotalFlow() {
@@ -146,7 +189,7 @@ void checkSerial() {
     else if (command == "run_auto") {
       run_auto = Serial.parseInt();
       if (run_auto == 0) {
-        estop();  //if auto mode is turned off, turn off all outputs
+        eStop();  //if auto mode is turned off, turn off all outputs
       }
       else {
         runAuto();
@@ -156,7 +199,14 @@ void checkSerial() {
 }
 
 void runAuto() {
+  low_flow_flag = 0; //reset flags in case they tripped during previous auto run
+  low_level_flag = 0;
   digitalOutput("sump_rly", 1);
+  hp_pump_event = t.after(hp_pump_on_delay, hpPump);  //turn on high pressure pump after delay
+}
+
+void hpPump() {  //had to create this function because the event can't take arguments
+  digitalOutput("hi_press_rly", 1);
 }
 
 void flowConfig(String tag, double value) {
@@ -166,11 +216,11 @@ void flowConfig(String tag, double value) {
   else if (tag == "water_cnts_per_gal") {
     water_cnts_per_gal = value;
   }
-  else if (tag == "set_sap_gal") {
-    sap_gallons = value;
+  else if (tag == "reset_sap") {
+    sap_count = value;
   }
-  else if (tag == "set_water_gal") {
-    water_gallons = value;
+  else if (tag == "reset_water") {
+    water_count = value;
   }
 }  
 
@@ -212,10 +262,12 @@ void digitalOutput(String tag, int state) {
   }
 }
 
-void estop() {
+void eStop() {
+  t.stop(hp_pump_event);
   digitalOutput("hi_press_rly", 0);
   digitalOutput("sump_rly", 0);
   digitalOutput("spare_rly", 0);
+  run_auto = 0;
 }
 
 void sapFlow() {
