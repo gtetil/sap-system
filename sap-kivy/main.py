@@ -12,11 +12,14 @@ from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 from kivy.config import Config
 from math import sin
 #from kivy.garden.graph import Graph, MeshLinePlot
-
 from kivy.core.window import Window
 
 Window.size = (800,480)
 Config.set('graphics', 'maxfps', '10')
+
+import json
+import os
+BASE = "/sys/class/backlight/rpi_backlight/"
 
 import serial
 import labelStatus, flowCluster
@@ -24,12 +27,77 @@ import labelStatus, flowCluster
 debug_mode = 1
 
 class MainScreen(FloatLayout):
-    pass
+    settings_file = 'settings.json'
+    sap_cnts_per_gal = 2566
+    water_cnts_per_gal = 2566
+    arduino = ObjectProperty(None)
+    sap_cal_input = ObjectProperty(None)
+    water_cal_input = ObjectProperty(None)
+    hp_pump_on_delay_input = ObjectProperty(None)
+    min_flow_input = ObjectProperty(None)
+    level_sw_mode_switch = ObjectProperty(None)
+    screen_brightness_slider = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(MainScreen, self).__init__(**kwargs)
+        with open(self.settings_file, 'r') as file:
+            data = json.load(file)
+            self.sap_cal_input.text = str(data['settings']['sap_cal_gallons'])
+            self.water_cal_input.text = str(data['settings']['water_cal_gallons'])
+            self.hp_pump_on_delay_input.text = str(data['settings']['hp_pump_on_delay'])
+            self.min_flow_input.text = str(data['settings']['minimum_flow'])
+            self.level_sw_mode_switch.active = data['settings']['level_sw_mode']
+            self.screen_brightness_slider.value = data['settings']['screen_brightness']
+            self.sap_cnts_per_gal = data['settings']['sap_cnts_per_gal']
+            self.water_cnts_per_gal = data['settings']['water_cnts_per_gal']
+        self.brightness()
+        #self.send_settings()
+
+    def save_settings(self):
+        data = {}
+        config = {}
+        config['sap_cal_gallons'] = int(self.sap_cal_input.text)
+        config['water_cal_gallons'] = int(self.water_cal_input.text)
+        config['hp_pump_on_delay'] = int(self.hp_pump_on_delay_input.text)
+        config['minimum_flow'] = int(self.min_flow_input.text)
+        config['level_sw_mode'] = self.level_sw_mode_switch.active
+        config['screen_brightness'] = int(self.screen_brightness_slider.value)
+        config['sap_cnts_per_gal'] = self.sap_cnts_per_gal
+        config['water_cnts_per_gal'] = self.water_cnts_per_gal
+        data['settings'] = config
+        with open(self.settings_file, 'w') as file:
+            json.dump(data, file, sort_keys=True, indent=4)
+        #self.send_settings()
+
+    def send_settings(self):
+        level_sw_int = '0'
+        if self.level_sw_mode_switch.active:
+            level_sw_int = '1'
+        self.arduino.set('app_config/level_sw_mode/' + level_sw_int)
+        self.arduino.set('app_config/min_flow/' + self.min_flow_input.text)
+        self.arduino.set('app_config/hp_pump_on_delay/' + self.hp_pump_on_delay_input.text)
+        self.arduino.set('flow_config/sap_cnts_per_gal/' + str(self.sap_cnts_per_gal))
+        self.arduino.set('flow_config/water_cnts_per_gal/' + str(self.water_cnts_per_gal))
+
+    def reset_flows(self):
+        self.arduino.set('flow_config/reset_sap/0')
+        self.arduino.set('flow_config/reset_water/0')
+
+    def cal_flows(self):
+        self.sap_cnts_per_gal = int(self.arduino.sap_count) / int(self.sap_cal_input.text)
+        self.water_cnts_per_gal = int(self.arduino.water_count) / int(self.water_cal_input.text)
+        self.save_settings()
+
+    def brightness(self):
+        value = int(self.screen_brightness_slider.value)
+        '''if value > 0 and value < 256:
+            _brightness = open(os.path.join(BASE, "brightness"), "w")
+            _brightness.write(str(value))
+            _brightness.close()
+            return
+        raise TypeError("Brightness should be between 0 and 255")'''
 
 class MainApp(App):
-    passcode = '1234'
-    passcode_try = ''
-    logged_in = NumericProperty(0)
 
     def build(self):
         self.arduino = Arduino()
