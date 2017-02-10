@@ -31,15 +31,30 @@
                     id: flow_layout
                     rows: 1
                     cols: 3
-                    size_hint: 1, 0.8
+                    size_hint: 1, 0.6
                     padding: 0, 0, 0, 0
-                    spacing: 30
+                    spacing: 20
 
                     FlowCluster:
+                        flow: app.arduino.sap_flow
+                        gallons: app.arduino.sap_gallons
 
                     FlowCluster:
+                        flow: app.arduino.water_flow
+                        gallons: app.arduino.water_gallons
 
                     FlowCluster:
+                        flow: app.arduino.total_flow
+                        gallons: app.arduino.total_gallons
+
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint: 1, 0.2
+
+                    Label:
+                        text: '[size=30]Efficiency: [/size]' + app.arduino.efficiency + '[size=25] %[/size]'
+                        font_size: '45sp'
+                        markup: 'True'
 
                 GridLayout:
                     id: main_buttons_layout

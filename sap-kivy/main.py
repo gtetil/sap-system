@@ -89,6 +89,13 @@ class Arduino(Widget):
             self.low_flow_flag = self.data_array[15]
             self.low_level_flag = self.data_array[16]
             self.system_status = self.data_array[17]
+            self.efficiency = '99'
+            self.sap_flow = '65.3'
+            self.sap_gallons = '124.9'
+            self.water_flow = '81.0'
+            self.water_gallons = '95.2'
+            self.total_flow = '130.5'
+            self.total_gallons = '200.6'
 
     def get(self, index):
         return self.data_array[index]

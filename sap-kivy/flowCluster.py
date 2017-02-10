@@ -8,48 +8,28 @@ from kivy.lang import Builder
 Builder.load_string("""
 <FlowCluster>:
     orientation: 'vertical'
+    flow: self.flow
+    gallons: self.gallons
 
     Label:
         text: 'Sap'
-        size_hint: 1, 0.2
         font_size: '40sp'
+        markup: 'True'
 
-    BoxLayout:
-        orientation: 'horizontal'
-        size_hint: 1, 0.5
+    Label:
+        text: root.flow + '[size=20]  GPH[/size]'
+        font_size: '45sp'
+        markup: 'True'
 
-        Label:
-            #text: app.arduino.sap_flow
-            text: '65.9'
-            font_size: '40sp'
+    Label:
+        text: root.gallons + '[size=20]  gal[/size]'
+        font_size: '30sp'
+        markup: 'True'
 
-        Label:
-            text: 'GPH'
-            font_size: '20sp'
-
-    BoxLayout:
-        orientation: 'horizontal'
-        size_hint: 1, 0.3
-
-        Label:
-            #text: app.arduino.sap_gallons
-            text: '137.5'
-            font_size: '20sp'
-
-        Label:
-            text: 'gal'
-            font_size: '20sp'
 """)
 
 class FlowCluster(BoxLayout):
-    header = StringProperty('')
-    slider_max = NumericProperty(0)
-    slider_min = NumericProperty(0)
-    slider_inc = NumericProperty(0)
-    actual = StringProperty('')
-    cmd_type = StringProperty('')
-    tank_cmd = StringProperty('')
-    button_inc = NumericProperty(0)
-    id = ObjectProperty(None)
+    flow = StringProperty('')
+    gallons = StringProperty('')
 
 Factory.register('KivyB', module='FlowCluster')
