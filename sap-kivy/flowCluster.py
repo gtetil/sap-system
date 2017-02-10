@@ -8,11 +8,12 @@ from kivy.lang import Builder
 Builder.load_string("""
 <FlowCluster>:
     orientation: 'vertical'
+    label: self.label
     flow: self.flow
     gallons: self.gallons
 
     Label:
-        text: 'Sap'
+        text: root.label
         font_size: '40sp'
         markup: 'True'
 
@@ -29,6 +30,7 @@ Builder.load_string("""
 """)
 
 class FlowCluster(BoxLayout):
+    label = StringProperty('')
     flow = StringProperty('')
     gallons = StringProperty('')
 
