@@ -1,8 +1,7 @@
-#include <Timer.h>
 
 //flow meter pins (interrupts)
-int sap_flow_pin = 2;
-int water_flow_pin = 3;
+const byte sap_flow_pin = 2;
+const byte water_flow_pin = 3;
 
 //digital output pins
 int hi_press_rly_pin = 6;
@@ -62,7 +61,9 @@ int low_level_flag;
 //misc
 String data_string;
 int system_status;
-Timer t;
+unsigned long main_timer = millis();
+unsigned long hp_timer = millis();
+int hp_delay_trigger;
 
 void setup() {
   //serial setup
@@ -70,9 +71,9 @@ void setup() {
   
   //setup flow meter interrupts
   pinMode(sap_flow_pin, INPUT);
-  attachInterrupt(0, sapFlow, RISING);
+  attachInterrupt(digitalPinToInterrupt(sap_flow_pin), sapFlow, RISING);
   pinMode(water_flow_pin, INPUT);
-  attachInterrupt(1, waterFlow, RISING);  
+  attachInterrupt(digitalPinToInterrupt(water_flow_pin), waterFlow, RISING);  
   
   //setup digital outputs and inputs
   pinMode(hi_press_rly_pin, OUTPUT);   //HI_PRESS_RLY
@@ -83,11 +84,19 @@ void setup() {
   pinMode(level_sw_pin, INPUT_PULLUP);  //LEVEL_SW
   pinMode(enabled_mon_pin, INPUT_PULLUP);  //ENABLED?
 
-  int main_event = t.every(100, mainEvent);
 }
 
 void loop() {
-  t.update();
+
+  if ((millis() - main_timer) >= 100) {
+    main_timer = millis();
+    mainEvent();
+  }
+
+  if ((hp_delay_trigger ==1) && (millis() - hp_timer) >= (hp_pump_on_delay * 1000)) {
+    hp_delay_trigger = 0;
+    digitalOutput("hi_press_rly", 1);
+  }
   
   if (enabled_mon == 0) {  //if estop circuit opens, turn off all digital outputs
     eStop();
@@ -141,7 +150,11 @@ void sendData() {
   addStringData(String(sap_gallons, 1));
   addStringData(String(water_gallons, 1));
   addStringData(String(total_gallons, 1));
-  addStringData(String(efficiency));
+  String eff_string = String(efficiency);
+  if (eff_string == " NAN") {
+    eff_string = "0";
+  }
+  addStringData(eff_string);
   addStringData(String(low_flow_flag));
   addStringData(String(low_level_flag)); 
   addStringData(String(system_status));
@@ -215,11 +228,8 @@ void runAuto() {
   low_flow_flag = 0; //reset flags in case they tripped during previous auto run
   low_level_flag = 0;
   digitalOutput("sump_rly", 1);
-  hp_pump_event = t.after(hp_pump_on_delay, hpPump);  //turn on high pressure pump after delay
-}
-
-void hpPump() {  //had to create this function because the event can't take arguments
-  digitalOutput("hi_press_rly", 1);
+  hp_delay_trigger = 1;  //turn on high pressure pump after delay
+  hp_timer = millis();
 }
 
 void flowConfig(String tag, double value) {
@@ -262,6 +272,7 @@ void digitalOutput(String tag, int state) {
     digitalWrite(sump_rly_pin, state);
     if (state == 0) {
       digitalWrite(hi_press_rly_pin, 0); //turn of high pressure pump if sump is turned off
+      hi_press_rly = 0;
     }
   }
   else if (tag == "spare_rly") {
@@ -276,7 +287,7 @@ void digitalOutput(String tag, int state) {
 }
 
 void eStop() {
-  t.stop(hp_pump_event);
+  hp_delay_trigger = 0;
   digitalOutput("hi_press_rly", 0);
   digitalOutput("sump_rly", 0);
   digitalOutput("spare_rly", 0);

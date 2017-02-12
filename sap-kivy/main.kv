@@ -4,6 +4,8 @@
     id: main_screen
     reset_flow_popup: reset_flow_popup.__self__
     flow_cal_popup: flow_cal_popup.__self__
+    low_flow_popup: low_flow_popup.__self__
+    low_level_popup: low_level_popup.__self__
     arduino: app.arduino
     sap_cal_input: sap_cal_input
     water_cal_input: water_cal_input
@@ -11,6 +13,9 @@
     min_flow_input: min_flow_input
     level_sw_mode_switch: level_sw_mode_switch
     screen_brightness_slider: screen_brightness_slider
+    sump_rly: app.arduino.sump_rly
+    low_flow: app.arduino.low_flow_flag
+    low_level: app.arduino.low_level_flag
 
     LabelStatus:
         size_hint: None, None
@@ -73,15 +78,15 @@
 
                     MainButton:
                         text: 'Enable'
-                        on_release: app.arduino.set('digital_output/enable/1')
+                        on_release: app.arduino.set('digital_output/enable/1/')
 
                     MainButton:
                         text: 'Run Auto'
-                        on_release: app.arduino.set('run_auto/1')
+                        on_release: app.arduino.set('run_auto/1/')
 
                     MainButton:
                         text: 'Stop'
-                        on_release: app.arduino.set('run_auto/0')
+                        on_release: app.arduino.set('run_auto/0/')
 
                     MainButton:
                         text: 'Reset'
@@ -92,6 +97,7 @@
                         title: "Reset Flow Data"
                         size_hint: None, None
                         size: 300, 300
+                        pos_hint: {'middle': 1, 'center': 1}
                         on_parent:
                             if self.parent == main_buttons_layout: self.parent.remove_widget(self)
 
@@ -113,7 +119,7 @@
 
                                 Button:
                                     text: 'Yes'
-                                    on_release: root.reset_flows
+                                    on_release: reset_flow_popup.dismiss(); root.reset_flows()
 
                                 Button:
                                     text: 'Cancel'
@@ -166,21 +172,24 @@
 
                     MainButton:
                         text: 'Enable'
-                        on_release: app.arduino.set('digital_output/enable/1')
+                        on_release: app.arduino.set('digital_output/enable/1/')
 
                     MainTogButton:
+                        id: sump_button
                         text: 'Sump Pump'
-                        on_release: app.arduino.set('digital_output/sump_rly/1')
+                        on_release: app.arduino.set_state('digital_output/sump_rly/', self.state)
                         state: 'down' if app.arduino.sump_rly == '1' else 'normal'
 
                     MainTogButton:
+                        id: hi_press_button
                         text: 'Hi Press Pump'
-                        on_release: app.arduino.set('digital_output/hi_press_rly/1')
+                        disabled: 'True'
+                        on_release: app.arduino.set_state('digital_output/hi_press_rly/', self.state)
                         state: 'down' if app.arduino.hi_press_rly == '1' else 'normal'
 
                     MainButton:
                         text: 'Stop'
-                        on_release: app.arduino.set('run_auto/0')
+                        on_release: app.arduino.set('run_auto/0/')
 
                     MainButton:
                         text: 'Reset'
@@ -340,11 +349,32 @@
                         BoxLayout:
                         BoxLayout:
 
-                    BoxLayout:
+                    RelativeLayout:
+                        id: status_layout
                         orientation: 'vertical'
                         size_hint_x: 0.36
                         padding: 10
                         spacing: 5
+
+                        Button:
+                            text: 'E-Stop Status'
+                            size_hint: None, None
+                            height: 50
+                            width: 150
+                            pos_hint: {'top': .95, 'right': 1}
+                            state: 'down' if app.arduino.estop_mon == '1' else 'normal'
+                            halign: 'center'
+                            valign: 'middle'
+
+                        Button:
+                            text: 'Level SW Status'
+                            size_hint: None, None
+                            height: 50
+                            width: 150
+                            pos_hint: {'top': .82, 'right': 1}
+                            state: 'down' if app.arduino.level_sw == '1' else 'normal'
+                            halign: 'center'
+                            valign: 'middle'
 
                 #Button:
                     #id: exit_button
@@ -381,12 +411,76 @@
 
                     Button:
                         text: 'Yes'
-                        on_release: flow_cal_popup.dismiss(); root.cal_flows
+                        on_release: flow_cal_popup.dismiss(); root.cal_flows()
 
                     Button:
                         text: 'Cancel'
                         on_release: flow_cal_popup.dismiss()
 
+        Popup:
+            id: low_flow_popup
+            title: "Low Flow"
+            size_hint: None, None
+            size: 300, 300
+            pos_hint: {'middle': 1, 'center': 1}
+            on_parent:
+                if self.parent == settings_tab: self.parent.remove_widget(self)
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                Label:
+                    text: 'The system shut down due to low flow.'
+                    size_hint: 1, .8
+                    text_size: self.width, None
+                    height: self.texture_size[1]
+                    font_size: '18sp'
+                    halign: 'center'
+
+                GridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint: 1, .2
+
+                    Button:
+                        text: 'Ok'
+                        on_release: low_flow_popup.dismiss()
+
+                    #Button:
+                        #text: 'Cancel'
+                        #on_release: low_flow_popup.dismiss()
+        Popup:
+            id: low_level_popup
+            title: "Low Flow"
+            size_hint: None, None
+            size: 300, 300
+            pos_hint: {'middle': 1, 'center': 1}
+            on_parent:
+                if self.parent == settings_tab: self.parent.remove_widget(self)
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                Label:
+                    text: 'The system shut down due to low level.'
+                    size_hint: 1, .8
+                    text_size: self.width, None
+                    height: self.texture_size[1]
+                    font_size: '18sp'
+                    halign: 'center'
+
+                GridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint: 1, .2
+
+                    Button:
+                        text: 'Ok'
+                        on_release: low_level_popup.dismiss()
+
+                    #Button:
+                        #text: 'Cancel'
+                        #on_release: low_level_popup.dismiss()
 
 <MainButton@Button, MainTogButton@ToggleButton>:
     font_size: '20sp'

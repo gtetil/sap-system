@@ -15,7 +15,8 @@ from math import sin
 from kivy.core.window import Window
 
 Window.size = (800,480)
-Config.set('graphics', 'maxfps', '10')
+Config.set('kivy', 'keyboard_mode', 'systemanddock')
+Config.set('graphics', 'maxfps', '100')
 
 import json
 import os
@@ -24,7 +25,7 @@ BASE = "/sys/class/backlight/rpi_backlight/"
 import serial
 import labelStatus, flowCluster
 
-debug_mode = 1
+debug_mode = 0
 
 class MainScreen(FloatLayout):
     settings_file = 'settings.json'
@@ -37,6 +38,9 @@ class MainScreen(FloatLayout):
     min_flow_input = ObjectProperty(None)
     level_sw_mode_switch = ObjectProperty(None)
     screen_brightness_slider = ObjectProperty(None)
+    sump_rly = StringProperty(None)
+    low_flow = StringProperty(None)
+    low_level = StringProperty(None)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -51,7 +55,7 @@ class MainScreen(FloatLayout):
             self.sap_cnts_per_gal = data['settings']['sap_cnts_per_gal']
             self.water_cnts_per_gal = data['settings']['water_cnts_per_gal']
         self.brightness()
-        #self.send_settings()
+        self.send_settings()
 
     def save_settings(self):
         data = {}
@@ -67,21 +71,21 @@ class MainScreen(FloatLayout):
         data['settings'] = config
         with open(self.settings_file, 'w') as file:
             json.dump(data, file, sort_keys=True, indent=4)
-        #self.send_settings()
+        self.send_settings()
 
     def send_settings(self):
         level_sw_int = '0'
         if self.level_sw_mode_switch.active:
             level_sw_int = '1'
-        self.arduino.set('app_config/level_sw_mode/' + level_sw_int)
-        self.arduino.set('app_config/min_flow/' + self.min_flow_input.text)
-        self.arduino.set('app_config/hp_pump_on_delay/' + self.hp_pump_on_delay_input.text)
-        self.arduino.set('flow_config/sap_cnts_per_gal/' + str(self.sap_cnts_per_gal))
-        self.arduino.set('flow_config/water_cnts_per_gal/' + str(self.water_cnts_per_gal))
+        self.arduino.set('app_config/level_sw_mode/' + str(level_sw_int) + '/')
+        self.arduino.set('app_config/min_flow/' + str(int(self.min_flow_input.text)) + '/')
+        self.arduino.set('app_config/hp_pump_on_delay/' + str(int(self.hp_pump_on_delay_input.text)) + '/')
+        self.arduino.set('flow_config/sap_cnts_per_gal/' + str(self.sap_cnts_per_gal) + '/')
+        self.arduino.set('flow_config/water_cnts_per_gal/' + str(self.water_cnts_per_gal) + '/')
 
     def reset_flows(self):
-        self.arduino.set('flow_config/reset_sap/0')
-        self.arduino.set('flow_config/reset_water/0')
+        self.arduino.set('flow_config/reset_sap/0/')
+        self.arduino.set('flow_config/reset_water/0/')
 
     def cal_flows(self):
         self.sap_cnts_per_gal = int(self.arduino.sap_count) / int(self.sap_cal_input.text)
@@ -96,6 +100,21 @@ class MainScreen(FloatLayout):
             _brightness.close()
             return
         raise TypeError("Brightness should be between 0 and 255")'''
+
+    def on_sump_rly(self, instance, state):
+        if state == '1':
+            self.ids.hi_press_button.disabled = False
+        else:
+            self.ids.hi_press_button.disabled = True
+
+    def on_low_flow(self, instance, state):
+        if state == '1':
+            self.ids.low_flow_popup.open()
+
+    def on_low_level(self, instance, state):
+        if state == '1':
+            self.ids.low_level_popup.open()
+
 
 class MainApp(App):
 
@@ -133,6 +152,7 @@ class Arduino(Widget):
         if debug_mode == 0:
             try:
                 self.data_array = ser.readline().rstrip().split(',')
+                print(self.data_array)
             except:
                 print('Serial Read Failure')
                 exit()
@@ -157,13 +177,14 @@ class Arduino(Widget):
             self.low_flow_flag = self.data_array[15]
             self.low_level_flag = self.data_array[16]
             self.system_status = self.data_array[17]
-            self.efficiency = '99'
+            '''self.efficiency = '99'
             self.sap_flow = '65.3'
             self.sap_gallons = '124.9'
             self.water_flow = '81.0'
             self.water_gallons = '95.2'
             self.total_flow = '130.5'
             self.total_gallons = '200.6'
+            '''
 
     def get(self, index):
         return self.data_array[index]
@@ -171,11 +192,18 @@ class Arduino(Widget):
     def set(self, command):
         ser.write(command)
 
+    def set_state(self, command, state):
+        if state == "down":
+            int_state = '1/'
+        else:
+            int_state = '0/'
+        ser.write(command + int_state)
+
 if __name__ == '__main__':
 
     if debug_mode == 0:
         try:
-            ser = serial.Serial('/dev/ttyUSB0', 115200)
+            ser = serial.Serial('/dev/ttyUSB0', 9600)
         except:
             print "Failed to connect"
             exit()
