@@ -62,6 +62,8 @@ int low_level_flag;
 String data_string;
 int system_status;
 unsigned long main_timer = millis();
+unsigned long flow_timer = millis();
+unsigned long low_flow_timer = millis();
 unsigned long hp_timer = millis();
 int hp_delay_trigger;
 
@@ -90,19 +92,34 @@ void loop() {
 
   if ((millis() - main_timer) >= 100) {
     main_timer = millis();
-    mainEvent();
+    digitalInputs();
+    sendData();
   }
 
+  if (total_flow > min_flow) {
+    low_flow_timer = millis();
+  }
+
+  if ((millis() - flow_timer) >= 1000) {  //timed loop for flow calculations
+    flow_timer = millis();
+    calcSapFlow();
+    calcWaterFlow();
+    calcTotalFlow();
+  }
+
+  checkSerial();
+  
   if ((hp_delay_trigger ==1) && (millis() - hp_timer) >= (hp_pump_on_delay * 1000)) {
     hp_delay_trigger = 0;
     digitalOutput("hi_press_rly", 1);
+    low_flow_timer = millis();
   }
   
   if (enabled_mon == 0) {  //if estop circuit opens, turn off all digital outputs
     eStop();
   }
 
-  if ((run_auto == 1) && (hi_press_rly == 1) && (total_flow < min_flow)) {  //eStop if flow loss during auto mode
+  if ((run_auto == 1) && (hi_press_rly == 1) && (millis() - low_flow_timer) > 3000) {  //eStop if flow loss during auto mode
     eStop();
     low_flow_flag = 1;  //used for pop-up on HMI
   }
@@ -123,15 +140,6 @@ void loop() {
     system_status = 0; //"Off"
   }
   
-}
-
-void mainEvent() {  //this is called by an event to make sure that these are called exactly every 100ms
-  calcSapFlow();
-  calcWaterFlow();
-  calcTotalFlow();
-  checkSerial();
-  digitalInputs();
-  sendData();
 }
 
 void sendData() {
@@ -175,7 +183,7 @@ void calcSapFlow() {
   sap_delta_count = sap_count - sap_prev_count;
   sap_prev_count = sap_count;
   sap_gallons = sap_count / sap_cnts_per_gal;
-  sap_k_factor = 36000 / sap_cnts_per_gal; //reading every 100ms  //was 7200 @ 500ms
+  sap_k_factor = 3600 / sap_cnts_per_gal; //7200 @ 500ms
   sap_flow = sap_delta_count * sap_k_factor;
 }
 
@@ -183,7 +191,7 @@ void calcWaterFlow() {
   water_delta_count = water_count - water_prev_count;
   water_prev_count = water_count;
   water_gallons = water_count / water_cnts_per_gal;
-  water_k_factor = 36000 / water_cnts_per_gal; //reading every 100ms  //was 7200 @ 500ms
+  water_k_factor = 3600 / water_cnts_per_gal; //7200 @ 500ms
   water_flow = water_delta_count * water_k_factor;
 }
 
@@ -209,7 +217,7 @@ void checkSerial() {
     }
     else if (command == "flow_config") {
       String tag = Serial.readStringUntil('/');
-      double value = Serial.readStringUntil('/').toFloat();
+      double value = Serial.parseFloat();
       flowConfig(tag, value);
     }
     else if (command == "run_auto") {
