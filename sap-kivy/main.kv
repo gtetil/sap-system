@@ -64,8 +64,14 @@
                         gallons: app.arduino.total_gallons
 
                 Label:
-                    text: '[size=30]Efficiency: [/size]' + app.arduino.efficiency + '[size=25] %[/size]'
+                    text: '[size=30]Efficiency (Live): [/size]' + app.arduino.efficiency + '[size=25] %[/size]'
                     font_size: '45sp'
+                    markup: 'True'
+                    size_hint: 1, .2
+
+                Label:
+                    text: '[size=20]Efficiency (Total): [/size]' + app.arduino.efficiency_total + '[size=20] %[/size]'
+                    font_size: '30sp'
                     markup: 'True'
                     size_hint: 1, .2
 
@@ -160,6 +166,12 @@
                 Label:
                     text: '[size=30]Efficiency: [/size]' + app.arduino.efficiency + '[size=25] %[/size]'
                     font_size: '45sp'
+                    markup: 'True'
+                    size_hint: 1, .2
+
+                Label:
+                    text: '[size=20]Efficiency (Total): [/size]' + app.arduino.efficiency_total + '[size=20] %[/size]'
+                    font_size: '30sp'
                     markup: 'True'
                     size_hint: 1, .2
 

@@ -142,13 +142,14 @@ class Arduino(Widget):
     water_gallons = StringProperty('0')
     total_gallons = StringProperty('0')
     efficiency = StringProperty('0')
+    efficiency_total = StringProperty('0')
     low_flow_flag = StringProperty('0')
     low_level_flag = StringProperty('0')
     system_status = StringProperty('0')
 
     def __init__(self, **kwargs):
         super(Arduino, self).__init__(**kwargs)
-        self.array_size = 19
+        self.array_size = 20
         self.data_array = ['0'] * self.array_size
         Clock.schedule_interval(self.update_data, 0)
 
@@ -178,9 +179,10 @@ class Arduino(Widget):
             self.water_gallons = self.data_array[12]
             self.total_gallons = self.data_array[13]
             self.efficiency = self.data_array[14]
-            self.low_flow_flag = self.data_array[15]
-            self.low_level_flag = self.data_array[16]
-            self.system_status = self.data_array[17]
+            self.efficiency_total = self.data_array[15]
+            self.low_flow_flag = self.data_array[16]
+            self.low_level_flag = self.data_array[17]
+            self.system_status = self.data_array[18]
             '''self.efficiency = '99'
             self.sap_flow = '65.3'
             self.sap_gallons = '124.9'

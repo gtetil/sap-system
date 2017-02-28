@@ -31,18 +31,18 @@ int hp_pump_on_delay = 5;
 
 //sap flow variables
 double sap_flow;
-volatile int sap_count; //This integer needs to be set as volatile to ensure it updates correctly during the interrupt process.
-long int sap_prev_count;
-long int sap_delta_count;
+volatile unsigned long sap_count; //This integer needs to be set as volatile to ensure it updates correctly during the interrupt process.
+unsigned long sap_prev_count;
+unsigned long sap_delta_count;
 double sap_k_factor;
 double sap_cnts_per_gal = 2566;
 double sap_gallons;
 
 //water flow variables
 double water_flow;
-volatile int water_count; //This integer needs to be set as volatile to ensure it updates correctly during the interrupt process.
-long int water_prev_count;
-long int water_delta_count;
+volatile unsigned long water_count; //This integer needs to be set as volatile to ensure it updates correctly during the interrupt process.
+unsigned long water_prev_count;
+unsigned long water_delta_count;
 double water_k_factor;
 double water_cnts_per_gal = 2566;
 double water_gallons;
@@ -51,6 +51,7 @@ double water_gallons;
 double total_flow;
 double total_gallons;
 double efficiency;
+double efficiency_total;
 
 //auto mode
 int run_auto;
@@ -163,6 +164,11 @@ void sendData() {
     eff_string = "0";
   }
   addStringData(eff_string);
+  String eff_tot_string = String(efficiency_total);
+  if (eff_tot_string == " NAN") {
+    eff_tot_string = "0";
+  }
+  addStringData(eff_tot_string);
   addStringData(String(low_flow_flag));
   addStringData(String(low_level_flag)); 
   addStringData(String(system_status));
@@ -177,6 +183,7 @@ void calcTotalFlow() {
   total_flow = sap_flow + water_flow;
   total_gallons = sap_gallons + water_gallons;
   efficiency = (sap_flow / total_flow) * 100;
+  efficiency_total = (sap_gallons / total_gallons) * 100;
 }
 
 void calcSapFlow() {
