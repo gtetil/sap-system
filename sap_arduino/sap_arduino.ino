@@ -70,7 +70,7 @@ int hp_delay_trigger;
 
 void setup() {
   //serial setup
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   //setup flow meter interrupts
   pinMode(sap_flow_pin, INPUT);
@@ -172,6 +172,8 @@ void sendData() {
   addStringData(String(low_flow_flag));
   addStringData(String(low_level_flag)); 
   addStringData(String(system_status));
+  addStringData(String(sap_cnts_per_gal));
+  addStringData(String(water_cnts_per_gal));
   Serial.println(data_string);
 }
 

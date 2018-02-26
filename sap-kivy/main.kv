@@ -3,7 +3,8 @@
 <MainScreen>:
     id: main_screen
     reset_flow_popup: reset_flow_popup.__self__
-    flow_cal_popup: flow_cal_popup.__self__
+    sap_flow_cal_popup: sap_flow_cal_popup.__self__
+    water_flow_cal_popup: water_flow_cal_popup.__self__
     low_flow_popup: low_flow_popup.__self__
     low_level_popup: low_level_popup.__self__
     arduino: app.arduino
@@ -16,6 +17,8 @@
     sump_rly: app.arduino.sump_rly
     low_flow: app.arduino.low_flow_flag
     low_level: app.arduino.low_level_flag
+    sap_cnts_per_gal: self.sap_cnts_per_gal
+    water_cnts_per_gal: self.water_cnts_per_gal
 
     LabelStatus:
         size_hint: None, None
@@ -218,7 +221,7 @@
                     id: settings_box_layout
                     orientation: 'horizontal'
                     padding: 10
-                    spacing: 20
+                    spacing: 15
 
                     BoxLayout:
                         id: backlight_layout
@@ -230,7 +233,7 @@
                         Label:
                             text: 'Screen\nBrightness'
                             markup: True
-                            size_hint_y: 0.1
+                            size_hint_y: 0.15
                             text_size: self.size
                             halign: 'center'
                             valign: 'middle'
@@ -245,16 +248,17 @@
                             value: 200
                             size_hint_y: 0.9
 
-                    GridLayout:
-                        cols: 2
-                        rows: 6
+                    BoxLayout:
                         spacing: 10
                         padding: 8
-                        size_hint_x: 0.44
+                        size_hint_x: 0.3
+                        orientation: 'vertical'
 
                         BoxLayout:
                             orientation: 'vertical'
-                            padding: 5, 0, 0, 0
+                            padding: 3, 0, 0, 0
+                            size_hint_y: None
+                            height: 110
 
                             Label:
                                 text: 'Sap Cal:'
@@ -272,6 +276,155 @@
                                 Label:
                                     text: 'gallons'
                                     size_hint_x: 0.6
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: None
+                                height: 25
+
+                                Label:
+                                    text: 'counts:'
+                                    size_hint_x: 0.6
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                                Label:
+                                    id: sap_counts
+                                    text: root.arduino.sap_count
+                                    size_hint_x: 0.4
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: None
+                                height: 25
+
+                                Label:
+                                    text: 'cnts/gal:'
+                                    size_hint_x: 0.6
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
+
+                                Label:
+                                    id: sap_counts_per_gal
+                                    text: root.arduino.sap_cnts_per_gal_readback
+                                    size_hint_x: 0.4
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
+
+                        BoxLayout:
+                            orientation: 'vertical'
+                            padding: 0, 9, 0, 0
+
+                            Button:
+                                id: cal_flows
+                                text: 'Cal Sap\n Flow Meter'
+                                halign: 'center'
+                                valign: 'middle'
+                                on_press: sap_flow_cal_popup.open()
+
+                        BoxLayout:
+                        BoxLayout:
+
+                    BoxLayout:
+                        spacing: 10
+                        padding: 8
+                        size_hint_x: 0.3
+                        orientation: 'vertical'
+
+                        BoxLayout:
+                            orientation: 'vertical'
+                            padding: 3, 0, 0, 0
+                            size_hint_y: None
+                            height: 110
+
+                            Label:
+                                text: 'Water Cal:'
+
+                            BoxLayout:
+                                orientation: 'horizontal'
+
+                                TextInput:
+                                    id: water_cal_input
+                                    multiline: False
+                                    on_text_validate: root.save_settings()
+                                    text: '30'
+                                    size_hint_x: 0.4
+
+                                Label:
+                                    text: 'gallons'
+                                    size_hint_x: 0.6
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: None
+                                height: 25
+
+                                Label:
+                                    text: 'counts:'
+                                    size_hint_x: 0.6
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                                Label:
+                                    id: water_counts
+                                    text: root.arduino.water_count
+                                    size_hint_x: 0.4
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: None
+                                height: 25
+
+                                Label:
+                                    text: 'cnts/gal:'
+                                    size_hint_x: 0.6
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
+
+                                Label:
+                                    id: water_counts_per_gal
+                                    text: root.arduino.water_cnts_per_gal_readback
+                                    size_hint_x: 0.4
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'top'
+
+                        BoxLayout:
+                            orientation: 'vertical'
+                            padding: 0, 9, 0, 0
+
+                            Button:
+                                id: cal_flows
+                                text: 'Cal Water\n Flow Meter'
+                                halign: 'center'
+                                valign: 'middle'
+                                on_press: water_flow_cal_popup.open()
+
+                        BoxLayout:
+                        BoxLayout:
+
+
+                    GridLayout:
+                        cols: 1
+                        rows: 6
+                        spacing: 10
+                        padding: 8
+                        size_hint_x: 0.25
 
                         BoxLayout:
                             orientation: 'vertical'
@@ -291,28 +444,7 @@
                                     size_hint_x: 0.4
 
                                 Label:
-                                    text: 'seconds'
-                                    size_hint_x: 0.6
-
-                        BoxLayout:
-                            orientation: 'vertical'
-                            padding: 5, 0, 0, 0
-
-                            Label:
-                                text: 'Water Cal:'
-
-                            BoxLayout:
-                                orientation: 'horizontal'
-
-                                TextInput:
-                                    id: water_cal_input
-                                    multiline: False
-                                    on_text_validate: root.save_settings()
-                                    text: '30'
-                                    size_hint_x: 0.4
-
-                                Label:
-                                    text: 'gallons'
+                                    text: 'sec'
                                     size_hint_x: 0.6
 
                         BoxLayout:
@@ -338,17 +470,6 @@
 
                         BoxLayout:
                             orientation: 'vertical'
-                            padding: 0, 9, 0, 0
-
-                            Button:
-                                id: cal_flows
-                                text: 'Calibrate\n Flow Meters'
-                                halign: 'center'
-                                valign: 'middle'
-                                on_press: flow_cal_popup.open()
-
-                        BoxLayout:
-                            orientation: 'vertical'
                             padding: 30, 0, 0, 0
 
                             Label:
@@ -358,9 +479,6 @@
                                 id: level_sw_mode_switch
                                 on_active: root.save_settings()
 
-                        BoxLayout:
-                        BoxLayout:
-                        BoxLayout:
                         BoxLayout:
                         BoxLayout:
                         BoxLayout:
@@ -401,8 +519,8 @@
                     #right: root.right
 
         Popup:
-            id: flow_cal_popup
-            title: "Calibrate Flow Meters"
+            id: sap_flow_cal_popup
+            title: "Calibrate Sap Flow Meter"
             size_hint: None, None
             size: 300, 300
             pos_hint: {'middle': 1, 'center': 1}
@@ -413,7 +531,7 @@
                 orientation: 'vertical'
 
                 Label:
-                    text: 'Are you sure you want to re-calibrate both flow meters?'
+                    text: 'Are you sure you want to re-calibrate the Sap Flow Meter?'
                     size_hint: 1, .8
                     text_size: self.width, None
                     height: self.texture_size[1]
@@ -427,11 +545,44 @@
 
                     Button:
                         text: 'Yes'
-                        on_release: flow_cal_popup.dismiss(); root.cal_flows()
+                        on_release: sap_flow_cal_popup.dismiss(); root.cal_sap_flow()
 
                     Button:
                         text: 'Cancel'
-                        on_release: flow_cal_popup.dismiss()
+                        on_release: sap_flow_cal_popup.dismiss()
+
+        Popup:
+            id: water_flow_cal_popup
+            title: "Calibrate Water Flow Meter"
+            size_hint: None, None
+            size: 300, 300
+            pos_hint: {'middle': 1, 'center': 1}
+            on_parent:
+                if self.parent == settings_tab: self.parent.remove_widget(self)
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                Label:
+                    text: 'Are you sure you want to re-calibrate the Water Flow Meter?'
+                    size_hint: 1, .8
+                    text_size: self.width, None
+                    height: self.texture_size[1]
+                    font_size: '18sp'
+                    halign: 'center'
+
+                GridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint: 1, .2
+
+                    Button:
+                        text: 'Yes'
+                        on_release: water_flow_cal_popup.dismiss(); root.cal_water_flow()
+
+                    Button:
+                        text: 'Cancel'
+                        on_release: water_flow_cal_popup.dismiss()
 
         Popup:
             id: low_flow_popup

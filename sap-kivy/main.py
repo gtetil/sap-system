@@ -32,8 +32,8 @@ debug_mode = 0
 
 class MainScreen(FloatLayout):
     settings_file = 'settings.json'
-    sap_cnts_per_gal = 2566
-    water_cnts_per_gal = 2566
+    sap_cnts_per_gal = NumericProperty(2566)
+    water_cnts_per_gal = NumericProperty(2566)
     arduino = ObjectProperty(None)
     sap_cal_input = ObjectProperty(None)
     water_cal_input = ObjectProperty(None)
@@ -58,13 +58,14 @@ class MainScreen(FloatLayout):
             self.sap_cnts_per_gal = data['settings']['sap_cnts_per_gal']
             self.water_cnts_per_gal = data['settings']['water_cnts_per_gal']
         self.brightness()
+        time.sleep(1) #Without this, the Arduino won't get all the information from the send_settings() funtion.  It must be a boot up issue.
         self.send_settings()
 
     def save_settings(self):
         data = {}
         config = {}
-        config['sap_cal_gallons'] = int(self.sap_cal_input.text)
-        config['water_cal_gallons'] = int(self.water_cal_input.text)
+        config['sap_cal_gallons'] = float("{:.1f}".format(float(self.sap_cal_input.text)))
+        config['water_cal_gallons'] = float("{:.1f}".format(float(self.water_cal_input.text)))
         config['hp_pump_on_delay'] = int(self.hp_pump_on_delay_input.text)
         config['minimum_flow'] = int(self.min_flow_input.text)
         config['level_sw_mode'] = self.level_sw_mode_switch.active
@@ -91,8 +92,11 @@ class MainScreen(FloatLayout):
         self.arduino.set('flow_config/reset_sap/0/')
         self.arduino.set('flow_config/reset_water/0/')
 
-    def cal_flows(self):
+    def cal_sap_flow(self):
         self.sap_cnts_per_gal = float(self.arduino.sap_count) / float(self.sap_cal_input.text)
+        self.save_settings()
+
+    def cal_water_flow(self):
         self.water_cnts_per_gal = float(self.arduino.water_count) / float(self.water_cal_input.text)
         self.save_settings()
 
@@ -146,10 +150,12 @@ class Arduino(Widget):
     low_flow_flag = StringProperty('0')
     low_level_flag = StringProperty('0')
     system_status = StringProperty('0')
+    sap_cnts_per_gal_readback = StringProperty('0')
+    water_cnts_per_gal_readback = StringProperty('0')
 
     def __init__(self, **kwargs):
         super(Arduino, self).__init__(**kwargs)
-        self.array_size = 20
+        self.array_size = 22
         self.data_array = ['0'] * self.array_size
         Clock.schedule_interval(self.update_data, 0)
 
@@ -183,6 +189,8 @@ class Arduino(Widget):
             self.low_flow_flag = self.data_array[16]
             self.low_level_flag = self.data_array[17]
             self.system_status = self.data_array[18]
+            self.sap_cnts_per_gal_readback = self.data_array[19]
+            self.water_cnts_per_gal_readback = self.data_array[20]
             '''self.efficiency = '99'
             self.sap_flow = '65.3'
             self.sap_gallons = '124.9'
@@ -190,6 +198,8 @@ class Arduino(Widget):
             self.water_gallons = '95.2'
             self.total_flow = '130.5'
             self.total_gallons = '200.6'
+            self.sap_count = '5000'
+            self.water_count = '10000'
             '''
 
     def get(self, index):
@@ -210,7 +220,8 @@ if __name__ == '__main__':
 
     if debug_mode == 0:
         try:
-            ser = serial.Serial('/dev/ttyUSB0', 9600)
+            ser = serial.Serial('/dev/ttyUSB0', 115200)
+            #ser = serial.Serial('COM9', 115200)
         except:
             print "Failed to connect"
             exit()
