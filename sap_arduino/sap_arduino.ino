@@ -59,6 +59,15 @@ int hp_pump_event;
 int low_flow_flag;
 int low_level_flag;
 
+//delay auto mod
+int delay_auto;
+int prev_delay_auto;
+double delay_hours;
+double delay_hours_latched;
+double countdown;
+unsigned long delay_start_time = millis();
+double elapsed_delay;
+
 //misc
 String data_string;
 int system_status;
@@ -130,9 +139,29 @@ void loop() {
     low_level_flag = 1;  //used for pop-up on HMI
   }
 
+  if (delay_auto == 1) {
+    if (prev_delay_auto == 0) {
+      delay_hours_latched = delay_hours;
+      delay_start_time = millis();
+    }
+    elapsed_delay = millis() - delay_start_time;
+    countdown = delay_hours_latched - (elapsed_delay / 3600000);
+    if (countdown <= 0) {
+      countdown = 0;
+      delay_auto = 0;
+      run_auto = 1;
+      runAuto();
+    }
+  }
+  prev_delay_auto = delay_auto;
+  
+  
   //update system status
   if (run_auto == 1) {
     system_status = 2; //"Auto_Run"
+  }
+  else if (delay_auto == 1) {
+    system_status = 4; //"Delayed Auto"
   }
   else if (enabled_mon == 1) {
     system_status = 1; //"Enabled"
@@ -174,6 +203,7 @@ void sendData() {
   addStringData(String(system_status));
   addStringData(String(sap_cnts_per_gal));
   addStringData(String(water_cnts_per_gal));
+  addStringData(String(countdown, 3));
   Serial.println(data_string);
 }
 
@@ -238,6 +268,11 @@ void checkSerial() {
         runAuto();
       }
     }
+    else if (command == "delay_auto") {
+      if (run_auto == 0) {
+        delay_auto = Serial.parseInt();
+      }
+    }
   }
 }
 
@@ -261,6 +296,9 @@ void flowConfig(String tag, double value) {
   }
   else if (tag == "reset_water") {
     water_count = value;
+  }
+  else if (tag == "delay_hours") {
+    delay_hours = value;
   }
 }  
 
@@ -309,6 +347,7 @@ void eStop() {
   digitalOutput("sump_rly", 0);
   digitalOutput("spare_rly", 0);
   run_auto = 0;
+  delay_auto = 0;
 }
 
 void sapFlow() {

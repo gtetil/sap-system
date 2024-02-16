@@ -35,6 +35,9 @@ class LabelStatus(Label):
         elif state == '3':
             self.text = 'Alarm'
             self.bcolor = 1, 0, 0, 1
+        elif state == '4':
+            self.text = 'Delayed Auto'
+            self.bcolor = 0, 0, 1, 1    
 
 
 Factory.register('KivyB', module='LabelStatus')

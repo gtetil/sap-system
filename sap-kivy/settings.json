@@ -1,12 +1,13 @@
 {
     "settings": {
-        "hp_pump_on_delay": 5, 
-        "level_sw_mode": false, 
-        "minimum_flow": 5, 
-        "sap_cal_gallons": 6.1, 
-        "sap_cnts_per_gal": 819.67, 
-        "screen_brightness": 200, 
-        "water_cal_gallons": 8.9, 
+        "delay_hours": 0.01,
+        "hp_pump_on_delay": 5,
+        "level_sw_mode": false,
+        "minimum_flow": 5,
+        "sap_cal_gallons": 6.1,
+        "sap_cnts_per_gal": 819.67,
+        "screen_brightness": 200,
+        "water_cal_gallons": 8.9,
         "water_cnts_per_gal": 1123.6
     }
 }

@@ -1,5 +1,10 @@
 import kivy
 kivy.require('1.9.1') # replace with your current kivy version !
+#kivy.require('2.3.0') # replace with your current kivy version !
+
+import os
+#needed for Windows...
+#os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
 
 from kivy.config import Config
 Config.set('kivy', 'keyboard_mode', 'systemanddock')
@@ -44,6 +49,7 @@ class MainScreen(FloatLayout):
     sump_rly = StringProperty(None)
     low_flow = StringProperty(None)
     low_level = StringProperty(None)
+    delay_hours_input = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -57,6 +63,7 @@ class MainScreen(FloatLayout):
             self.screen_brightness_slider.value = data['settings']['screen_brightness']
             self.sap_cnts_per_gal = data['settings']['sap_cnts_per_gal']
             self.water_cnts_per_gal = data['settings']['water_cnts_per_gal']
+            self.delay_hours_input.text = str(data['settings']['delay_hours'])
         self.brightness()
         time.sleep(1) #Without this, the Arduino won't get all the information from the send_settings() funtion.  It must be a boot up issue.
         self.send_settings()
@@ -64,6 +71,7 @@ class MainScreen(FloatLayout):
     def save_settings(self):
         data = {}
         config = {}
+        print('test')
         config['sap_cal_gallons'] = float("{:.1f}".format(float(self.sap_cal_input.text)))
         config['water_cal_gallons'] = float("{:.1f}".format(float(self.water_cal_input.text)))
         config['hp_pump_on_delay'] = int(self.hp_pump_on_delay_input.text)
@@ -72,6 +80,7 @@ class MainScreen(FloatLayout):
         config['screen_brightness'] = int(self.screen_brightness_slider.value)
         config['sap_cnts_per_gal'] = float("{:.2f}".format(self.sap_cnts_per_gal))
         config['water_cnts_per_gal'] = float("{:.2f}".format(self.water_cnts_per_gal))
+        config['delay_hours'] = float("{:.1f}".format(float(self.delay_hours_input.text)))
         data['settings'] = config
         with open(self.settings_file, 'w') as file:
             json.dump(data, file, sort_keys=True, indent=4)
@@ -85,6 +94,7 @@ class MainScreen(FloatLayout):
         self.arduino.set('app_config/level_sw_mode/' + str(level_sw_int) + '/')
         self.arduino.set('app_config/min_flow/' + str(int(self.min_flow_input.text)) + '/')
         self.arduino.set('app_config/hp_pump_on_delay/' + str(int(self.hp_pump_on_delay_input.text)) + '/')
+        self.arduino.set('flow_config/delay_hours/' + str(self.delay_hours_input.text) + '/')
         self.arduino.set('flow_config/sap_cnts_per_gal/' + "{:.2f}".format(self.sap_cnts_per_gal) + '/')
         self.arduino.set('flow_config/water_cnts_per_gal/' + "{:.2f}".format(self.water_cnts_per_gal) + '/')
 
@@ -152,10 +162,11 @@ class Arduino(Widget):
     system_status = StringProperty('0')
     sap_cnts_per_gal_readback = StringProperty('0')
     water_cnts_per_gal_readback = StringProperty('0')
+    countdown = StringProperty('0')
 
     def __init__(self, **kwargs):
         super(Arduino, self).__init__(**kwargs)
-        self.array_size = 22
+        self.array_size = 23
         self.data_array = ['0'] * self.array_size
         Clock.schedule_interval(self.update_data, 0)
 
@@ -163,6 +174,7 @@ class Arduino(Widget):
         if debug_mode == 0:
             try:
                 self.data_array = ser.readline().rstrip().split(',')
+                #self.data_array = ser.readline().decode().rstrip().split(',')
                 #print(self.data_array)
             except:
                 print('Serial Read Failure')
@@ -191,6 +203,7 @@ class Arduino(Widget):
             self.system_status = self.data_array[18]
             self.sap_cnts_per_gal_readback = self.data_array[19]
             self.water_cnts_per_gal_readback = self.data_array[20]
+            self.countdown = self.data_array[21]
             '''self.efficiency = '99'
             self.sap_flow = '65.3'
             self.sap_gallons = '124.9'
@@ -207,6 +220,7 @@ class Arduino(Widget):
 
     def set(self, command):
         ser.write(command)
+        #ser.write(command.encode())
         time.sleep(.1)
 
     def set_state(self, command, state):
@@ -215,15 +229,16 @@ class Arduino(Widget):
         else:
             int_state = '0/'
         ser.write(command + int_state)
+        #ser.write((command + int_state).encode())
 
 if __name__ == '__main__':
 
     if debug_mode == 0:
         try:
             ser = serial.Serial('/dev/ttyUSB0', 115200)
-            #ser = serial.Serial('COM9', 115200)
+            #ser = serial.Serial('COM4', 115200)
         except:
-            print "Failed to connect"
+            print("Failed to connect")
             exit()
 
     MainApp().run()

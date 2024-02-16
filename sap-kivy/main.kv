@@ -19,6 +19,7 @@
     low_level: app.arduino.low_level_flag
     sap_cnts_per_gal: self.sap_cnts_per_gal
     water_cnts_per_gal: self.water_cnts_per_gal
+	delay_hours_input: delay_hours_input
 
     LabelStatus:
         size_hint: None, None
@@ -81,7 +82,7 @@
                 GridLayout:
                     id: main_buttons_layout
                     rows: 1
-                    cols: 4
+                    cols: 5
                     size_hint: 1, .2
                     padding: 0, 10, 0, 0
 
@@ -94,6 +95,10 @@
                         on_release: app.arduino.set('run_auto/1/'); #root.send_settings()
 
                     MainButton:
+                        text: 'Delayed Auto'
+                        on_release: app.arduino.set('delay_auto/1/'); #root.send_settings()
+					
+					MainButton:
                         text: 'Stop'
                         on_release: app.arduino.set('run_auto/0/')
 
@@ -480,8 +485,9 @@
                                 on_active: root.save_settings()
 
                         BoxLayout:
-                        BoxLayout:
-                        BoxLayout:
+                        BoxLayout:                      
+						BoxLayout:
+                            
 
                     RelativeLayout:
                         id: status_layout
@@ -509,6 +515,54 @@
                             state: 'down' if app.arduino.level_sw == '1' else 'normal'
                             halign: 'center'
                             valign: 'middle'
+							
+						BoxLayout:
+                            orientation: 'vertical'
+                            padding: 3, 0, 0, 0
+                            size_hint_y: None
+                            height: 90
+							pos_hint: {'top': .68, 'right': 1.15}
+							halign: 'center'
+                            valign: 'middle'
+
+                            Label:
+                                text: 'Delayed Auto:'
+
+                            BoxLayout:
+                                orientation: 'horizontal'
+
+                                TextInput:
+                                    id: delay_hours_input
+                                    multiline: False
+                                    on_text_validate: root.save_settings()
+                                    text: '8'
+                                    size_hint_x: 0.4
+
+                                Label:
+                                    text: 'hours'
+                                    size_hint_x: 0.6
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: None
+                                height: 25
+
+                                Label:
+                                    text: 'countdown:'
+                                    size_hint_x: 0.6
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'middle'
+
+                                Label:
+                                    id: auto_countdown
+                                    text: root.arduino.countdown
+                                    size_hint_x: 0.4
+                                    text_size: self.size
+                                    halign: 'left'
+                                    valign: 'middle'
 
                 #Button:
                     #id: exit_button
