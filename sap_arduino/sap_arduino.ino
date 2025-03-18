@@ -30,12 +30,14 @@ int min_flow = 3;
 int hp_pump_on_delay = 5;
 
 //sap flow variables
+
 double sap_flow;
 volatile unsigned long sap_count; //This integer needs to be set as volatile to ensure it updates correctly during the interrupt process.
 unsigned long sap_prev_count;
+
 unsigned long sap_delta_count;
 double sap_k_factor;
-double sap_cnts_per_gal = 2566;
+double sap_cnts_per_gal = 3800;
 double sap_gallons;
 
 //water flow variables
@@ -44,7 +46,7 @@ volatile unsigned long water_count; //This integer needs to be set as volatile t
 unsigned long water_prev_count;
 unsigned long water_delta_count;
 double water_k_factor;
-double water_cnts_per_gal = 2566;
+double water_cnts_per_gal = 3800;
 double water_gallons;
 
 //total flow
@@ -82,9 +84,9 @@ void setup() {
   Serial.begin(115200);
   
   //setup flow meter interrupts
-  pinMode(sap_flow_pin, INPUT);
+  pinMode(sap_flow_pin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(sap_flow_pin), sapFlow, RISING);
-  pinMode(water_flow_pin, INPUT);
+  pinMode(water_flow_pin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(water_flow_pin), waterFlow, RISING);  
   
   //setup digital outputs and inputs
